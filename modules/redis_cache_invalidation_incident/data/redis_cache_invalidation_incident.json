@@ -1,0 +1,146 @@
+{
+  "name": "redis_cache_invalidation_incident",
+  "description": "Redis Cache Invalidation Incident refers to the situation where the Redis cache which is a key-value data store, fails to invalidate or remove data that has been modified or deleted in the primary data store. This can lead to inconsistencies and errors in the application that relies on the cache for faster data retrieval. The incident requires the identification of the root cause and the implementation of a solution to ensure that the cache stays in sync with the primary data store.",
+  "params": [
+    {
+      "name": "CACHE_EXPIRATION_TIME_IN_SECONDS",
+      "value": ""
+    },
+    {
+      "name": "CACHE_EVICTION_POLICY",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_REDIS_CONFIG_FILE",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Redis Cache Invalidation Incident.\nRedis Cache Invalidation Incident refers to the situation where the Redis cache which is a key-value data store, fails to invalidate or remove data that has been modified or deleted in the primary data store. This can lead to inconsistencies and errors in the application that relies on the cache for faster data retrieval. The incident requires the identification of the root cause and the implementation of a solution to ensure that the cache stays in sync with the primary data store."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Redis server is running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status redis-server`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check connection to Redis server"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `redis-cli ping`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Redis keys"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `redis-cli keys *`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Redis cache size"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `redis-cli info | grep used_memory_human`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check last time Redis cache was saved"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `redis-cli lastsave`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Redis cache memory usage"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `redis-cli info memory`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Redis cache AOF (Append Only File) size"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `redis-cli info persistence | grep aof`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check Redis cache RDB (Redis Database File) size"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `redis-cli info persistence | grep rdb`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Review the Redis cache configuration settings to ensure that it is set up for proper data expiration and eviction policies that match the data access patterns of the application."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_update_redis_cache_config($CACHE_EXPIRATION_TIME_IN_SECONDS, $CACHE_EVICTION_POLICY, $PATH_TO_REDIS_CONFIG_FILE)"
+    }
+  ]
+}
